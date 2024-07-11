@@ -3,19 +3,19 @@ import 'dart:ui';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flappy_bird/game/assets.dart';
 import 'package:flappy_bird/game/configuration.dart';
 import 'package:flappy_bird/game/flappy_bird_game.dart';
 import 'package:flappy_bird/screens/game_over_screen.dart';
-import 'package:flutter/animation.dart';
 
 class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCallbacks {
   Bird();
 
   int score = 0;
   double velocity = 0;
+  double timeSinceLastFly = 0;
+
 
   @override
   Future<void> onLoad() async {
@@ -28,7 +28,13 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
   }
 
   void fly() {
-    velocity = Config.flyUpwardForce;
+    double multiplier = 1;
+
+    if (timeSinceLastFly < 0.3) multiplier += 0.5;
+
+
+    velocity = Config.flyUpwardForce * multiplier;
+    timeSinceLastFly = 0;
     FlameAudio.play(Assets.fly);
   }
 
@@ -36,6 +42,7 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
     position = Vector2(50, gameRef.size.y / 2 - size.y / 2);
     score = 0;
     velocity = 0;
+    timeSinceLastFly = 0;
   }
 
   @override
@@ -54,6 +61,8 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
   @override
   void update(double dt) {
     super.update(dt);
+
+    timeSinceLastFly += dt;
 
     velocity += dt * Config.gravity;
     final birdNewY = position.y + velocity * dt;

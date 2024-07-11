@@ -30,7 +30,6 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection{
   void update(double dt) {
     super.update(dt);
     interval.update(dt);
-
     score.text = 'Score: ${bird.score}';
   }
 
@@ -39,7 +38,7 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection{
       text: 'Score: 0',
       anchor: Anchor.center,
       position: Vector2(size.x /2, size.y /2 * 0.2),
-    );
+    )..priority = 300;
   }
 
   @override
