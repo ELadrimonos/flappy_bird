@@ -22,6 +22,7 @@ class Pipe extends SpriteComponent with HasGameRef<FlappyBirdGame> {
     final pipeRotated = await Flame.images.load(Assets.pipeRotated);
     size = Vector2(50, height);
 
+
     switch (pipePosition) {
       case PipePosition.top:
         position.y = 0;

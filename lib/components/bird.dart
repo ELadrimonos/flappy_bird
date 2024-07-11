@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -12,6 +15,7 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
   Bird();
 
   int score = 0;
+  double velocity = 0;
 
   @override
   Future<void> onLoad() async {
@@ -20,19 +24,18 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
     position = Vector2(50, gameRef.size.y / 2 - size.y / 2);
     sprite = Sprite(bird);
     add(CircleHitbox());
+    anchor = Anchor.center;
   }
 
   void fly() {
-    add(MoveByEffect(
-        Vector2(0, Config.gravity),
-        EffectController(duration: 0.2, curve: Curves.decelerate),
-    ));
+    velocity = Config.flyUpwardForce;
     FlameAudio.play(Assets.fly);
   }
 
   void reset() {
     position = Vector2(50, gameRef.size.y / 2 - size.y / 2);
     score = 0;
+    velocity = 0;
   }
 
   @override
@@ -51,6 +54,17 @@ class Bird extends SpriteComponent with HasGameRef<FlappyBirdGame>, CollisionCal
   @override
   void update(double dt) {
     super.update(dt);
-    position.y += Config.birdVelocity * dt;
+
+    velocity += dt * Config.gravity;
+    final birdNewY = position.y + velocity * dt;
+    position = Vector2(position.x, birdNewY);
+
+    // Limita la posición para que no salga de la pantalla (opcional)
+    if (position.y > gameRef.size.y - size.y) {
+      position.y = gameRef.size.y - size.y;
+    }
+
+    final newAngle = clampDouble(velocity / 180, -pi * 0.25, pi * 0.25);
+    angle = newAngle;
   }
 }
